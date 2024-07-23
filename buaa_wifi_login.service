@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Environment=PYTHONUNBUFFERED=1
-StandardOutput=append:/var/log/buaa_gateway_login.log
+StandardOutput=append:/var/log/buaa_wifi_login.log
 Type=simple
 Restart=on-failure
 RestartSec=15s
