@@ -50,6 +50,16 @@ if __name__ == "__main__":
 
 buaa_wifi_login.service基本借鉴~照抄~：https://github.com/soyons/BUAALogin
 
+修改buaa_wifi_login.service中的这一行：
+
+```shell
+ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
+```
+
+把`/path/to/your/python`替换为你当前使用的Python环境的路径。不知道怎么查看路径的话，在成功运行buaa_wifi_login.py的环境下运行`which python`就能看到。
+
+把`/path/to/buaa_wifi_login.py`替换为buaa_wifi_login.py文件在的绝对路径。
+
 将buaa_wifi_login.service复制到/lib/systemd/system目录下：
 
 ```shell
