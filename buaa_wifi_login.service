@@ -1,5 +1,5 @@
 [Unit]
-Description=Automatically relogin when gateway logged out.
+Description=Automatically login BUAA-Wifi at system startup.
 After=network-online.target
 Wants=network-online.target
 
