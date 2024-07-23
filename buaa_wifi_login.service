@@ -1,0 +1,16 @@
+[Unit]
+Description=Automatically relogin when gateway logged out.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=append:/var/log/buaa_gateway_login.log
+Type=simple
+Restart=on-failure
+RestartSec=15s
+ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
+Group=systemd-journal
+
+[Install]
+WantedBy=multi-user.target
