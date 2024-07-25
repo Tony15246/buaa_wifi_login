@@ -58,7 +58,13 @@ ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
 
 把`/path/to/your/python`替换为你当前使用的Python环境的路径。不知道怎么查看路径的话，在成功运行buaa_wifi_login.py的环境下运行`which python`就能看到。
 
-把`/path/to/buaa_wifi_login.py`替换为buaa_wifi_login.py文件在的绝对路径。
+把`/path/to/buaa_wifi_login.py`替换为buaa_wifi_login.py文件所在的绝对路径。
+
+> buaa_wifi_login.py仅会执行一次登录操作，如果登录失败buaa_wifi_login.service会在15秒后尝试重新执行buaa_wifi_login.py
+>
+> 如果希望不仅仅只是开机自动登录校园网，还想要断网检测，在断网时重新登录校园网，请在ExecStart项中把`/path/to/buaa_wifi_login.py`替换为always_online.py文件所在的绝对路径
+> 
+> 关于always_online.py的使用和具体细节，见[断网重连](#断网重连)
 
 将buaa_wifi_login.service复制到/lib/systemd/system目录下：
 
@@ -76,3 +82,24 @@ sudo systemctl disable buaa_wifi_login.service # 取消开机自启动
 ```
 
 运行日志记录在/var/log/buaa_wifi_login.log中。设置了`network-online`目标单元，确保服务在建立了某种形式的网络连接后再执行，防止出现终点不可达或者DNS解析失败之类的异常。
+
+## 断网重连
+
+always_online.py基本借鉴~照抄~：https://github.com/soyons/BUAALogin
+
+always_online.py每五分钟请求一次百度首页，如果请求失败或者被重定向到gw.buaa.edu.cn校园网登录页面，就判定为当前已断网，并重新执行一次登录操作
+
+使用always_online.py前记得修改该文件中的以下内容，填入自己的账号密码：
+
+```python
+if __name__ == "__main__":
+    username = "你的校园网账号用户名"
+    password = "你的校园网密码(明文)"
+```
+
+可以根据个人喜好把测试是否断网的testurl改成自己喜欢的网址，或者重设检查断网重连的时长checkinterval
+
+```python
+testurl = "https://www.baidu.com"
+checkinterval = 5 * 60
+```
