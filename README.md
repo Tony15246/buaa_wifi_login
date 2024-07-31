@@ -20,45 +20,37 @@ pip install -r requirements.txt
 
 ```
 
-之后运行代码
+之后在项目根目录下创建config.json文件，配置自己的账号密码，文件内容如下即可:
+
+```json
+{
+  "username": "你的校园网账号用户名",
+  "password": "你的校园网密码(明文)"
+}
+```
+
+最后运行代码
 
 ```shell
 python buaa_wifi_login.py
-```
-
-在终端中出现`gw.buaa.edu.cn portal login...`后依次输入用户名和密码
-
-测试代码能运行成功后，就可以在buaa_wifi_login.py中将以下代码
-
-```python
-if __name__ == "__main__":
-    print('gw.buaa.edu.cn portal login...')
-    username = input('username: ')
-    password = getpass.getpass('password: ')
-```
-
-改为
-
-```python
-if __name__ == "__main__":
-    print('gw.buaa.edu.cn portal login...')
-    username = '你的校园网账号用户名'
-    password = '你的校园网密码(明文)'
 ```
 
 ## Linux开机自启动
 
 buaa_wifi_login.service基本借鉴~照抄~：https://github.com/soyons/BUAALogin
 
-修改buaa_wifi_login.service中的这一行：
+修改buaa_wifi_login.service中的这两行：
 
 ```shell
 ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
+WorkingDirectory=/path/to/buaa_wifi_login
 ```
 
 把`/path/to/your/python`替换为你当前使用的Python环境的路径。不知道怎么查看路径的话，在成功运行buaa_wifi_login.py的环境下运行`which python`就能看到。
 
 把`/path/to/buaa_wifi_login.py`替换为buaa_wifi_login.py文件所在的绝对路径。
+
+把`/path/to/buaa_wifi_login`替换为项目根目录的绝对地址，即buaa_wifi_login.py和config.json文件的父目录。
 
 > buaa_wifi_login.py仅会执行一次登录操作，如果登录失败buaa_wifi_login.service会在15秒后尝试重新执行buaa_wifi_login.py
 >
@@ -69,7 +61,7 @@ ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
 将buaa_wifi_login.service复制到/lib/systemd/system目录下：
 
 ```shell
-cp buaa_wifi_login.service /lib/systemd/system/buaa_wifi_login.service
+sudo cp buaa_wifi_login.service /lib/systemd/system/buaa_wifi_login.service
 ```
 
 systemd服务管理参考以下命令
@@ -87,15 +79,7 @@ sudo systemctl disable buaa_wifi_login.service # 取消开机自启动
 
 always_online.py基本借鉴~照抄~：https://github.com/soyons/BUAALogin
 
-always_online.py每五分钟请求一次百度首页，如果请求失败或者被重定向到gw.buaa.edu.cn校园网登录页面，就判定为当前已断网，并重新执行一次登录操作
-
-使用always_online.py前记得修改该文件中的以下内容，填入自己的账号密码：
-
-```python
-if __name__ == "__main__":
-    username = "你的校园网账号用户名"
-    password = "你的校园网密码(明文)"
-```
+always_online.py每5分钟请求一次百度首页，如果请求失败或者被重定向到gw.buaa.edu.cn校园网登录页面，就判定为当前已断网，并重新执行一次登录操作
 
 可以根据个人喜好把测试是否断网的testurl改成自己喜欢的网址，或者重设检查断网重连的时长checkinterval
 
