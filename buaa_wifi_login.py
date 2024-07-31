@@ -222,13 +222,24 @@ def login(username, password):
 
     return get_jsonp(srun_portal_url, data)
 
+def ensure_login(username, password):
+    while 1:
+        login_info = login(username, password)
+        print(json.dumps(login_info, indent=4, ensure_ascii=False))
+        if login_info['error'] == 'ok':
+            print('login success')
+            break
+        else:
+            time.sleep(5)
+
 
 if __name__ == "__main__":
     print('gw.buaa.edu.cn portal login...')
-    username = input('username: ')
-    password = getpass.getpass('password: ')
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+    username = config['username']
+    password = config['password']
 
-    login_info = login(username, password)
-    print(json.dumps(login_info, indent=4, ensure_ascii=False))
+    ensure_login(username, password)
 
 

@@ -3,7 +3,7 @@ import sys
 import time
 import json
 import requests
-from buaa_wifi_login import login
+from buaa_wifi_login import ensure_login
 
 def is_connect_internet(testurl):
     try:
@@ -24,8 +24,7 @@ def always_login(username, password, testurl, checkinterval):
 
     timestamp()
     try:
-        login_info = login(username, password)
-        print(json.dumps(login_info, indent=4, ensure_ascii=False))
+        ensure_login(username, password)
     except Exception as e:
         print(f"Error during initial login: {e}")
     while 1:
@@ -33,8 +32,7 @@ def always_login(username, password, testurl, checkinterval):
             time.sleep(checkinterval)
             if not is_connect_internet(testurl):
                 timestamp()
-                login_info = login(username, password)
-                print(json.dumps(login_info, indent=4, ensure_ascii=False))
+                ensure_login(username, password)
             else:
                 print("Internet connection is stable.")
         except KeyboardInterrupt:
@@ -44,8 +42,10 @@ def always_login(username, password, testurl, checkinterval):
             print(f"Error during reconnect: {e}")
         
 if __name__ == "__main__":
-    username = "你的校园网账号用户名"
-    password = "你的校园网密码(明文)"
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+    username = config['username']
+    password = config['password']
 
     testurl = "https://www.baidu.com"
     checkinterval = 5 * 60

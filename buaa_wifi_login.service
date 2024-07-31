@@ -10,6 +10,7 @@ Type=simple
 Restart=on-failure
 RestartSec=15s
 ExecStart=/path/to/your/python /path/to/buaa_wifi_login.py
+WorkingDirectory=/path/to/buaa_wifi_login
 Group=systemd-journal
 
 [Install]
