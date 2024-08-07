@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''
+"""
 @Description: login gw.buaa.edu.cn in Command line mode
     based on https://github.com/luoboganer 2019-09-01
     based on https://coding.net/u/huxiaofan1223/p/jxnu_srun/git
@@ -7,17 +7,17 @@
     based on https://github.com/zzdyyy/buaa_gateway_login
     based on https://github.com/soyons/BUAALogin
 
-'''
+"""
 
 
-import requests
+import hashlib
+import hmac
+import json
+import math
 import socket
 import time
-import math
-import hmac
-import hashlib
-import getpass
-import json
+
+import requests
 import urllib3
 
 urllib3.disable_warnings()
@@ -33,14 +33,14 @@ def get_jsonp(url, params):
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     }
     callback_name = "jQuery1124044069126839574846_" + str(int(time.time() * 1000))
-    params['callback'] = callback_name
+    params["callback"] = callback_name
     resp = requests.get(url, params=params, headers=headers, verify=False)
-    return json.loads(resp.text[len(callback_name) + 1:-1])
+    return json.loads(resp.text[len(callback_name) + 1 : -1])
 
 
 def get_IP():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(('8.8.8.8', 80))
+    s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
 
 
@@ -48,20 +48,23 @@ def get_ip_token(username):
     get_challenge_url = "https://gw.buaa.edu.cn/cgi-bin/get_challenge"
     get_challenge_params = {
         "username": username,
-        "ip": '0.0.0.0',
-        "_": int(time.time() * 1000)
+        "ip": "0.0.0.0",
+        "_": int(time.time() * 1000),
     }
     res = get_jsonp(get_challenge_url, get_challenge_params)
-    return res["client_ip"], res["challenge"],
+    return (
+        res["client_ip"],
+        res["challenge"],
+    )
 
 
 def get_info(username, password, ip):
     params = {
-        'username': username,
-        'password': password,
-        'ip': ip,
-        'acid': '62',
-        "enc_ver": 'srun_bx1'
+        "username": username,
+        "password": password,
+        "ip": ip,
+        "acid": "62",
+        "enc_ver": "srun_bx1",
     }
     info = json.dumps(params)
     return info
@@ -85,8 +88,11 @@ def sencode(msg, key):
     pwd = []
     for i in range(0, l, 4):
         pwd.append(
-            ordat(msg, i) | ordat(msg, i + 1) << 8 | ordat(msg, i + 2) << 16
-            | ordat(msg, i + 3) << 24)
+            ordat(msg, i)
+            | ordat(msg, i + 1) << 8
+            | ordat(msg, i + 2) << 16
+            | ordat(msg, i + 3) << 24
+        )
     if key:
         pwd.append(l)
     return pwd
@@ -101,8 +107,12 @@ def lencode(msg, key):
             return
         ll = m
     for i in range(0, l):
-        msg[i] = chr(msg[i] & 0xff) + chr(msg[i] >> 8 & 0xff) + chr(
-            msg[i] >> 16 & 0xff) + chr(msg[i] >> 24 & 0xff)
+        msg[i] = (
+            chr(msg[i] & 0xFF)
+            + chr(msg[i] >> 8 & 0xFF)
+            + chr(msg[i] >> 16 & 0xFF)
+            + chr(msg[i] >> 24 & 0xFF)
+        )
     if key:
         return "".join(msg)[0:ll]
     return "".join(msg)
@@ -152,7 +162,7 @@ _ALPHA = "LVoJPiCN2R8G90yg+hmFHuacZ1OWMnrsSTXkYpUq/3dlbfKwv6xztjI7DeBE45QA"
 
 def _getbyte(s, i):
     x = ord(s[i])
-    if (x > 255):
+    if x > 255:
         print("INVALID_CHARACTER_ERR: DOM Exception 5")
         exit(0)
     return x
@@ -174,11 +184,15 @@ def get_base64(s):
     i = imax
     if len(s) - imax == 1:
         b10 = _getbyte(s, i) << 16
-        x.append(_ALPHA[(b10 >> 18)] +
-                 _ALPHA[((b10 >> 12) & 63)] + _PADCHAR + _PADCHAR)
+        x.append(_ALPHA[(b10 >> 18)] + _ALPHA[((b10 >> 12) & 63)] + _PADCHAR + _PADCHAR)
     elif len(s) - imax == 2:
         b10 = (_getbyte(s, i) << 16) | (_getbyte(s, i + 1) << 8)
-        x.append(_ALPHA[(b10 >> 18)] + _ALPHA[((b10 >> 12) & 63)] + _ALPHA[((b10 >> 6) & 63)] + _PADCHAR)
+        x.append(
+            _ALPHA[(b10 >> 18)]
+            + _ALPHA[((b10 >> 12) & 63)]
+            + _ALPHA[((b10 >> 6) & 63)]
+            + _PADCHAR
+        )
     return "".join(x)
 
 
@@ -209,37 +223,35 @@ def login(username, password):
         "os": "Linux",
         "name": "Linux",
         "double_stack": 0,
-        "_": int(time.time() * 1000)
+        "_": int(time.time() * 1000),
     }
     chkstr = token + username
     chkstr += token + get_md5(password, token)
-    chkstr += token + '62'
+    chkstr += token + "62"
     chkstr += token + ip
-    chkstr += token + '200'
-    chkstr += token + '1'
+    chkstr += token + "200"
+    chkstr += token + "1"
     chkstr += token + "{SRBX1}" + get_base64(get_xencode(info, token))
-    data['chksum'] = get_sha1(chkstr)
+    data["chksum"] = get_sha1(chkstr)
 
     return get_jsonp(srun_portal_url, data)
+
 
 def ensure_login(username, password):
     while 1:
         login_info = login(username, password)
         print(json.dumps(login_info, indent=4, ensure_ascii=False))
-        if login_info['error'] == 'ok':
-            print('login success')
+        if login_info["error"] == "ok":
+            print("login success")
             break
-        else:
-            time.sleep(5)
+        time.sleep(5)
 
 
 if __name__ == "__main__":
-    print('gw.buaa.edu.cn portal login...')
-    with open('config.json', 'r') as file:
+    print("gw.buaa.edu.cn portal login...")
+    with open("config.json", "r") as file:
         config = json.load(file)
-    username = config['username']
-    password = config['password']
+    username = config["username"]
+    password = config["password"]
 
     ensure_login(username, password)
-
-
