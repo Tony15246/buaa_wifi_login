@@ -5,7 +5,7 @@
 
 ⚠️低技术力警告，代码基本借鉴前辈们的代码(~其实就是照抄,基本上只是改了一下ac_id和一些无伤大雅的部分~)。在此感谢分享自动登录脚本的各位大佬。
 
-github上现有的仓库似乎基本都是登录BUAA-Mobile用的，请求中的ac_id字段填的值均为1。经个人本地环境测试，要通过BUAA-Wifi的验证ac_id似乎必须设置为62。
+github上现有的仓库请求中的ac_id字段填的值均为1。经测试，在本人本地环境下要通过BUAA-Wifi的验证ac_id必须设置为62。acid疑似是根据北航的不同区域进行划分的。具体见[此issue](https://github.com/Tony15246/buaa_wifi_login/issues/1)
 
 你是否厌倦了每次笔记本开机还需要手动打开浏览器进入gw.buaa.edu.cn输入账号密码后点登录？(~那就用BUAA-Mobile，别用BUAA-Wifi就好~)
 
